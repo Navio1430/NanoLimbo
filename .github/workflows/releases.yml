@@ -33,3 +33,21 @@ jobs:
           asset_path: build/libs/${{ steps.find-jar.outputs.jarname }}
           asset_name: ${{ steps.find-jar.outputs.jarname }}
           asset_content_type: application/java-archive
+
+      - name: Copy jar as -latest.jar
+        id: copy-jar
+        run: |
+          JAR="${{ steps.find-jar.outputs.jarname }}"
+          # Replace the version part with 'latest'
+          LATEST_JAR=$(echo "$JAR" | sed -E 's/-[0-9]+\.[0-9]+\.[0-9]+-/-latest-/')
+          cp "build/libs/$JAR" "build/libs/$LATEST_JAR"
+          echo "latest_jar=$LATEST_JAR" >> $GITHUB_OUTPUT
+      - name: Upload -latest.jar to the GitHub release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: build/libs/${{ steps.copy-jar.outputs.latest_jar }}
+          asset_name: ${{ steps.copy-jar.outputs.latest_jar }}
+          asset_content_type: application/java-archive
