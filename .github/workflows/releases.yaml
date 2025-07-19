@@ -33,3 +33,13 @@ jobs:
           asset_path: build/libs/${{ steps.find-jar.outputs.jarname }}
           asset_name: ${{ steps.find-jar.outputs.jarname }}
           asset_content_type: application/java-archive
+
+      - name: Upload to the GitHub release as latest archive
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: build/libs/${{ steps.find-jar.outputs.jarname%.* }}-latest.jar
+          asset_name: ${{ steps.find-jar.outputs.jarname%.* }}-latest.jar
+          asset_content_type: application/java-archive
